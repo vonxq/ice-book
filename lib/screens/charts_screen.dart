@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ice_book/providers/app_provider.dart';
 
 class ChartsScreen extends StatelessWidget {
   const ChartsScreen({super.key});
@@ -26,63 +28,67 @@ class ChartsScreen extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: Consumer<AppProvider>(
+                  builder: (context, appProvider, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.bar_chart,
-                          color: Colors.white,
-                          size: 32,
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.bar_chart,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              '本月统计',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          '本月统计',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                context,
+                                title: '收入',
+                                amount: '¥${appProvider.monthlyIncome.toStringAsFixed(0)}',
+                                color: Colors.green,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                context,
+                                title: '支出',
+                                amount: '¥${appProvider.monthlyExpense.toStringAsFixed(0)}',
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                context,
+                                title: '结余',
+                                amount: '¥${appProvider.monthlyBalance.toStringAsFixed(0)}',
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            context,
-                            title: '收入',
-                            amount: '¥5,200',
-                            color: Colors.green,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildStatCard(
-                            context,
-                            title: '支出',
-                            amount: '¥3,800',
-                            color: Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            context,
-                            title: '结余',
-                            amount: '¥1,400',
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 24),
@@ -97,67 +103,79 @@ class ChartsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildCategoryItem(
-                      context,
-                      icon: '🍽️',
-                      name: '餐饮',
-                      amount: 1200.0,
-                      percentage: 0.32,
-                      color: Colors.orange,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryItem(
-                      context,
-                      icon: '🚗',
-                      name: '交通',
-                      amount: 800.0,
-                      percentage: 0.21,
-                      color: Colors.blue,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryItem(
-                      context,
-                      icon: '🛒',
-                      name: '购物',
-                      amount: 600.0,
-                      percentage: 0.16,
-                      color: Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryItem(
-                      context,
-                      icon: '🎮',
-                      name: '娱乐',
-                      amount: 500.0,
-                      percentage: 0.13,
-                      color: Colors.purple,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryItem(
-                      context,
-                      icon: '🏥',
-                      name: '医疗',
-                      amount: 400.0,
-                      percentage: 0.11,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryItem(
-                      context,
-                      icon: '📦',
-                      name: '其他',
-                      amount: 300.0,
-                      percentage: 0.08,
-                      color: Colors.grey,
-                    ),
-                  ],
+                child: Consumer<AppProvider>(
+                  builder: (context, appProvider, child) {
+                    final transactions = appProvider.transactions;
+                    final expenseTransactions = transactions.where((t) => t.type == 'expense').toList();
+                    
+                    if (expenseTransactions.isEmpty) {
+                      return _buildEmptyState(context);
+                    }
+                    
+                    // 按分类统计支出
+                    final categoryStats = <String, double>{};
+                    for (final transaction in expenseTransactions) {
+                      categoryStats[transaction.categoryId] = (categoryStats[transaction.categoryId] ?? 0) + transaction.amount;
+                    }
+                    
+                    final totalExpense = categoryStats.values.fold(0.0, (sum, amount) => sum + amount);
+                    final sortedCategories = categoryStats.entries.toList()
+                      ..sort((a, b) => b.value.compareTo(a.value));
+                    
+                    return ListView.builder(
+                      itemCount: sortedCategories.length,
+                      itemBuilder: (context, index) {
+                        final entry = sortedCategories[index];
+                        final categoryId = entry.key;
+                        final amount = entry.value;
+                        final percentage = totalExpense > 0 ? amount / totalExpense : 0.0;
+                        
+                        return _buildCategoryItem(
+                          context,
+                          categoryId: categoryId,
+                          amount: amount,
+                          percentage: percentage,
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.bar_chart,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无支出数据',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '开始记账后可以查看支出分类统计',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -200,13 +218,14 @@ class ChartsScreen extends StatelessWidget {
 
   Widget _buildCategoryItem(
     BuildContext context, {
-    required String icon,
-    required String name,
+    required String categoryId,
     required double amount,
     required double percentage,
-    required Color color,
   }) {
+    final categoryInfo = _getCategoryInfo(categoryId);
+    
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -225,12 +244,12 @@ class ChartsScreen extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: categoryInfo['color'].withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
               child: Text(
-                icon,
+                categoryInfo['icon'],
                 style: const TextStyle(fontSize: 20),
               ),
             ),
@@ -241,7 +260,7 @@ class ChartsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  categoryInfo['name'],
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -266,7 +285,7 @@ class ChartsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: color,
+                  color: categoryInfo['color'],
                 ),
               ),
               const SizedBox(height: 4),
@@ -274,7 +293,7 @@ class ChartsScreen extends StatelessWidget {
                 width: 60,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: categoryInfo['color'].withOpacity(0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: FractionallySizedBox(
@@ -282,7 +301,7 @@ class ChartsScreen extends StatelessWidget {
                   widthFactor: percentage,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: color,
+                      color: categoryInfo['color'],
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -293,5 +312,26 @@ class ChartsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Map<String, dynamic> _getCategoryInfo(String categoryId) {
+    switch (categoryId) {
+      case 'expense_food':
+        return {'name': '餐饮', 'icon': '🍽️', 'color': Colors.orange};
+      case 'expense_transport':
+        return {'name': '交通', 'icon': '🚗', 'color': Colors.blue};
+      case 'expense_shopping':
+        return {'name': '购物', 'icon': '🛒', 'color': Colors.green};
+      case 'expense_entertainment':
+        return {'name': '娱乐', 'icon': '🎮', 'color': Colors.purple};
+      case 'expense_medical':
+        return {'name': '医疗', 'icon': '🏥', 'color': Colors.red};
+      case 'expense_education':
+        return {'name': '教育', 'icon': '📚', 'color': Colors.cyan};
+      case 'expense_housing':
+        return {'name': '住房', 'icon': '🏠', 'color': Colors.orange};
+      default:
+        return {'name': '其他', 'icon': '📦', 'color': Colors.grey};
+    }
   }
 } 

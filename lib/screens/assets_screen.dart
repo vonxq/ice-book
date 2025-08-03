@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
+import 'package:ice_book/screens/add_account_screen.dart';
 
 class AssetsScreen extends StatelessWidget {
   const AssetsScreen({super.key});
@@ -17,7 +18,11 @@ class AssetsScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: 添加账户
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AddAccountScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -183,7 +188,7 @@ class AssetsScreen extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Color(int.parse(account.color.replaceAll('#', '0xFF'))).withOpacity(0.1),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Center(

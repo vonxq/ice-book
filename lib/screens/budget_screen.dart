@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
+import 'package:ice_book/screens/add_budget_screen.dart';
 
 class BudgetScreen extends StatelessWidget {
   const BudgetScreen({super.key});
@@ -17,7 +18,11 @@ class BudgetScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: 添加预算
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AddBudgetScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -120,58 +125,43 @@ class BudgetScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildCategoryBudget(
-                      context,
-                      icon: '🍽️',
-                      name: '餐饮',
-                      budget: 1000.0,
-                      spent: 650.0,
-                      color: Colors.orange,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryBudget(
-                      context,
-                      icon: '🚗',
-                      name: '交通',
-                      budget: 800.0,
-                      spent: 320.0,
-                      color: Colors.blue,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryBudget(
-                      context,
-                      icon: '🛒',
-                      name: '购物',
-                      budget: 600.0,
-                      spent: 450.0,
-                      color: Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryBudget(
-                      context,
-                      icon: '🎮',
-                      name: '娱乐',
-                      budget: 500.0,
-                      spent: 280.0,
-                      color: Colors.purple,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCategoryBudget(
-                      context,
-                      icon: '🏥',
-                      name: '医疗',
-                      budget: 300.0,
-                      spent: 150.0,
-                      color: Colors.red,
-                    ),
-                  ],
-                ),
+                child: _buildEmptyBudgetList(context),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyBudgetList(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.account_balance_wallet,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无预算设置',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '点击右上角添加预算',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+            ),
+          ),
+        ],
       ),
     );
   }

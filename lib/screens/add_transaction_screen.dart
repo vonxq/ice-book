@@ -189,10 +189,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.2,
+        crossAxisCount: 4, // 改为4列，让按钮更小
+        crossAxisSpacing: 8, // 减小间距
+        mainAxisSpacing: 8,
+        childAspectRatio: 1.0, // 调整宽高比
       ),
       itemCount: familyMembers.length,
       itemBuilder: (context, index) {
@@ -210,9 +210,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: isSelected 
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
                   : Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8), // 减小圆角
               border: isSelected 
-                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1) // 减小边框
                   : null,
             ),
             child: Column(
@@ -220,13 +220,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               children: [
                 Text(
                   member.avatar,
-                  style: const TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 20), // 减小图标大小
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2), // 减小间距
                 Text(
                   member.name,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10, // 减小字体大小
                     fontWeight: FontWeight.w500,
                     color: isSelected 
                         ? Theme.of(context).colorScheme.primary
