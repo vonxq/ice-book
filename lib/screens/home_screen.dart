@@ -4,6 +4,7 @@ import '../providers/transaction_provider.dart';
 import '../providers/account_provider.dart';
 import '../utils/helpers.dart';
 import '../utils/constants.dart';
+import '../models/transaction.dart';
 import 'add_transaction_screen.dart';
 import 'account_screen.dart';
 import 'statistics_screen.dart';
@@ -69,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
+              heroTag: 'add_transaction_fab',
               onPressed: () {
                 Navigator.push(
                   context,
@@ -92,9 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final transactions = transactionProvider.transactions;
         final monthRange = Helpers.getMonthRange(_selectedDate);
-        final monthTransactions = transactions.where((t) =>
-            t.date.isAfter(monthRange['start']!.subtract(const Duration(days: 1)) &&
-            t.date.isBefore(monthRange['end']!.add(const Duration(days: 1)))).toList();
+        final monthTransactions = transactions.where((t) {
+          return t.date.isAfter(monthRange['start']!.subtract(const Duration(days: 1))) &&
+                 t.date.isBefore(monthRange['end']!.add(const Duration(days: 1)));
+        }).toList();
 
         return Column(
           children: [
@@ -224,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTransactionList(List<dynamic> transactions) {
+  Widget _buildTransactionList(List<Transaction> transactions) {
     if (transactions.isEmpty) {
       return const Center(
         child: Column(

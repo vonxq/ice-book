@@ -27,12 +27,13 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
           ),
           useMaterial3: true,
+          fontFamily: 'system-ui', // 使用系统字体
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
             elevation: 0,
           ),
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
