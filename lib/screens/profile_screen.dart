@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ice_book/providers/app_provider.dart';
+import 'package:ice_book/models/user.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -19,60 +22,16 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 用户信息卡片
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '👨',
-                          style: TextStyle(fontSize: 32),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '张三',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '记账达人',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ],
-                ),
+              Consumer<AppProvider>(
+                builder: (context, appProvider, child) {
+                  final currentUser = appProvider.currentUser;
+                  
+                  if (currentUser == null) {
+                    return _buildLoginCard(context);
+                  }
+                  
+                  return _buildUserCard(context, currentUser);
+                },
               ),
               const SizedBox(height: 24),
               
@@ -122,73 +81,77 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     
                     // 统计信息
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '统计信息',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  context,
-                                  title: '记账天数',
-                                  value: '365',
-                                  icon: Icons.calendar_today,
-                                ),
-                              ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  context,
-                                  title: '总交易',
-                                  value: '1,234',
-                                  icon: Icons.receipt_long,
-                                ),
+                    Consumer<AppProvider>(
+                      builder: (context, appProvider, child) {
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  context,
-                                  title: '总资产',
-                                  value: '¥15,680',
-                                  icon: Icons.account_balance,
+                              const Text(
+                                '统计信息',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  context,
-                                  title: '净资产',
-                                  value: '¥13,360',
-                                  icon: Icons.trending_up,
-                                ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      context,
+                                      title: '记账天数',
+                                      value: '0',
+                                      icon: Icons.calendar_today,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      context,
+                                      title: '总交易',
+                                      value: '${appProvider.transactions.length}',
+                                      icon: Icons.receipt_long,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      context,
+                                      title: '总资产',
+                                      value: '¥${appProvider.totalAssets.toStringAsFixed(0)}',
+                                      icon: Icons.account_balance,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      context,
+                                      title: '净资产',
+                                      value: '¥${appProvider.netAssets.toStringAsFixed(0)}',
+                                      icon: Icons.trending_up,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -196,6 +159,162 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoginCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '未登录',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '请使用Apple ID登录',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () => _handleAppleLogin(context),
+            icon: const Icon(Icons.apple),
+            label: const Text('使用Apple ID登录'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserCard(BuildContext context, User user) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Center(
+              child: Text(
+                user.avatar,
+                style: const TextStyle(fontSize: 32),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '已登录',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _handleLogout(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAppleLogin(BuildContext context) {
+    // TODO: 实现Apple登录
+    // 这里应该集成Sign in with Apple
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apple登录'),
+        content: const Text('这里将集成Sign in with Apple功能'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('退出登录'),
+        content: const Text('确定要退出登录吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<AppProvider>().setCurrentUser(null);
+              Navigator.of(context).pop();
+            },
+            child: const Text('确定'),
+          ),
+        ],
       ),
     );
   }

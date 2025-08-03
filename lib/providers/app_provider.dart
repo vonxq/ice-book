@@ -154,7 +154,7 @@ class AppProvider extends ChangeNotifier {
   }
 
   // 设置当前用户
-  void setCurrentUser(User user) {
+  void setCurrentUser(User? user) {
     _currentUser = user;
     notifyListeners();
   }
