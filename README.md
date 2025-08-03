@@ -1,8 +1,8 @@
-# 记账应用 - iOS智能记账软件
+# 记账应用 - Flutter跨平台记账软件
 
 ## 项目简介
 
-记账应用是一款现代化的iOS原生记账软件，采用SwiftUI开发，支持iCloud数据同步。应用提供完整的记账功能，包括收入支出记录、分类管理、数据统计、资产管理等，帮助用户全面管理个人财务。
+记账应用是一款基于Flutter的跨平台记账软件，支持iOS、Android、Web等多端运行。应用提供完整的记账功能，包括收入支出记录、分类管理、数据统计、资产管理等，帮助用户全面管理个人财务。
 
 ## 功能特性
 
@@ -14,44 +14,50 @@
 - 📅 **日期选择**: 灵活选择记账日期
 - 📋 **分类管理**: 预设分类和自定义分类
 
-### 辅助功能
-- 📱 **现代化UI**: 基于SwiftUI的流畅界面
-- ☁️ **云端同步**: iCloud自动同步，多设备数据一致
+### 跨平台特性
+- 📱 **多端支持**: iOS、Android、Web、Desktop
+- ☁️ **云端同步**: Firebase实时数据同步
 - 🔒 **数据安全**: 本地加密存储，保护用户隐私
 - 📤 **数据导出**: 支持CSV格式导出
 - 🎨 **主题切换**: 支持深色/浅色主题
 
 ## 技术架构
 
-- **开发语言**: Swift 5.0+
-- **UI框架**: SwiftUI
-- **数据存储**: Core Data + CloudKit
-- **最低支持**: iOS 15.0+
-- **目标设备**: iPhone, iPad
+- **开发框架**: Flutter 3.0+
+- **编程语言**: Dart 3.0+
+- **状态管理**: Riverpod / Bloc
+- **数据存储**: SQLite / Hive / Cloud Firestore
+- **UI框架**: Material Design 3 / Cupertino
+- **最低支持**: iOS 12.0+, Android 6.0+
+- **目标平台**: iOS, Android, Web, Desktop
 
 ## 项目结构
 
 ```
-ExpenseTracker/
-├── App/                    # 应用入口
-├── Views/                  # 视图层
-│   ├── Main/              # 主要页面
-│   ├── Components/         # 可复用组件
-│   └── Modals/            # 弹窗页面
-├── Models/                 # 数据模型
-│   ├── CoreData/          # Core Data模型
-│   └── ViewModels/        # 视图模型
-├── Services/               # 业务服务
-├── Utils/                  # 工具类
-└── Resources/              # 资源文件
+expense_tracker/
+├── lib/                    # 主要代码目录
+│   ├── app/               # 应用配置
+│   ├── models/            # 数据模型
+│   ├── views/             # 视图层
+│   ├── providers/         # 状态管理
+│   ├── services/          # 业务服务
+│   ├── utils/             # 工具类
+│   └── resources/         # 资源文件
+├── android/               # Android平台配置
+├── ios/                   # iOS平台配置
+├── web/                   # Web平台配置
+├── windows/               # Windows平台配置
+├── macos/                 # macOS平台配置
+└── linux/                 # Linux平台配置
 ```
 
 ## 开发环境要求
 
-- Xcode 14.0+
-- iOS 15.0+ SDK
-- macOS 12.0+
-- Apple Developer Account (用于CloudKit)
+- Flutter 3.0+
+- Dart 3.0+
+- Android Studio / VS Code
+- Xcode (iOS开发)
+- Firebase项目 (云端功能)
 
 ## 安装和运行
 
@@ -61,26 +67,39 @@ git clone git@github.com:vonxq/ice-book.git
 cd ice-book
 ```
 
-2. 打开项目
+2. 安装依赖
 ```bash
-open ExpenseTracker.xcodeproj
+flutter pub get
 ```
 
-3. 配置开发者账号
-   - 在Xcode中选择项目
-   - 在Signing & Capabilities中配置开发者账号
-   - 启用iCloud和CloudKit功能
+3. 配置Firebase (可选)
+```bash
+flutterfire configure
+```
 
 4. 运行项目
-   - 选择目标设备或模拟器
-   - 点击运行按钮或使用快捷键 `Cmd+R`
+```bash
+# iOS
+flutter run -d ios
+
+# Android
+flutter run -d android
+
+# Web
+flutter run -d chrome
+
+# Desktop
+flutter run -d windows
+flutter run -d macos
+flutter run -d linux
+```
 
 ## 开发计划
 
 ### 第一阶段 (MVP) - 进行中
 - [x] 项目基础架构搭建
 - [x] 设计文档完成
-- [ ] Core Data 模型设计
+- [ ] 数据模型和枚举定义
 - [ ] 主页UI实现
 - [ ] 记账功能实现
 
@@ -91,16 +110,16 @@ open ExpenseTracker.xcodeproj
 - [ ] 资产管家功能
 
 ### 第三阶段 (高级功能)
-- [ ] CloudKit 同步实现
+- [ ] 云端同步实现
 - [ ] 数据导出功能
 - [ ] 通知提醒功能
-- [ ] 安全设置功能
+- [ ] 多端适配
 
 ### 第四阶段 (优化发布)
 - [ ] 性能优化
 - [ ] 用户体验优化
 - [ ] 测试和调试
-- [ ] App Store 发布准备
+- [ ] 应用商店发布
 
 ## 主要页面
 
@@ -154,6 +173,42 @@ open ExpenseTracker.xcodeproj
 - 数据备份
 - 主题切换
 - 安全设置
+
+## 跨平台特性
+
+### 平台适配
+- **iOS**: Cupertino风格UI，原生体验
+- **Android**: Material Design 3，现代化界面
+- **Web**: 响应式设计，浏览器访问
+- **Desktop**: 桌面应用体验，键盘快捷键
+
+### 数据同步
+- **实时同步**: Firebase Firestore实时数据同步
+- **离线支持**: 本地SQLite/Hive数据缓存
+- **多端一致**: 跨设备数据自动同步
+
+### 性能优化
+- **懒加载**: 分页数据加载
+- **缓存机制**: 图片和数据缓存
+- **内存管理**: 及时释放资源
+
+## 技术栈详解
+
+### 状态管理
+- **Riverpod**: 现代化状态管理
+- **Bloc**: 复杂状态管理
+- **Provider**: 简单状态管理
+
+### 数据存储
+- **SQLite**: 结构化数据存储
+- **Hive**: 键值对和对象存储
+- **SharedPreferences**: 设置存储
+- **Firebase Firestore**: 云端数据同步
+
+### UI框架
+- **Material Design 3**: Android风格
+- **Cupertino**: iOS风格
+- **自定义组件**: 跨平台统一体验
 
 ## 贡献指南
 
