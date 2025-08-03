@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 初始化示例数据
+    // 初始化默认分类数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppProvider>().initializeSampleData();
     });
@@ -43,19 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: const BottomNavigation(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const AddTransactionScreen(),
-            ),
-          );
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
       ),
     );
   }

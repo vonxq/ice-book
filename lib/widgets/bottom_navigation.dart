@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class BottomNavigation extends StatelessWidget {
-  const BottomNavigation({super.key});
+  final VoidCallback? onAddTransaction;
+
+  const BottomNavigation({
+    super.key,
+    this.onAddTransaction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +46,10 @@ class BottomNavigation extends StatelessWidget {
                   onTap: () {},
                 ),
               ),
-              // 记账按钮（占位）
-              const Expanded(child: SizedBox()),
+              // 记账按钮（中间，更大）
+              Expanded(
+                child: _buildAddButton(context),
+              ),
               // 图表
               Expanded(
                 child: _buildNavItem(
@@ -65,6 +72,32 @@ class BottomNavigation extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddButton(BuildContext context) {
+    return GestureDetector(
+      onTap: onAddTransaction,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        height: 56,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 28,
         ),
       ),
     );

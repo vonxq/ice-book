@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
 import 'package:ice_book/providers/theme_provider.dart';
-import 'package:ice_book/screens/splash_screen.dart';
+import 'package:ice_book/screens/main_screen.dart';
 import 'package:ice_book/utils/theme.dart';
 import 'package:ice_book/utils/database_helper.dart';
 
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
-            home: const SplashScreen(),
+            home: const MainScreen(),
           );
         },
       ),

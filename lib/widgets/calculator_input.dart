@@ -22,6 +22,14 @@ class _CalculatorInputState extends State<CalculatorInput> {
 
   @override
   Widget build(BuildContext context) {
+    // 获取屏幕高度和底部安全区域
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final availableHeight = screenHeight - bottomPadding;
+    
+    // 动态计算按钮高度，确保适应屏幕
+    final buttonHeight = (availableHeight * 0.08).clamp(50.0, 70.0);
+    
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
@@ -60,73 +68,83 @@ class _CalculatorInputState extends State<CalculatorInput> {
               child: Column(
                 children: [
                   // 第一行：清除按钮
-                  Row(
-                    children: [
-                      Expanded(child: _buildButton('C', _clearAll)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('AC', _clearAll)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('⌫', _backspace)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('÷', () => _setOperation('÷'))),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildButton('C', _clearAll, buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('AC', _clearAll, buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('⌫', _backspace, buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('÷', () => _setOperation('÷'), buttonHeight)),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   
                   // 第二行：7-8-9-×
-                  Row(
-                    children: [
-                      Expanded(child: _buildNumberButton('7')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('8')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('9')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('×', () => _setOperation('×'))),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildNumberButton('7', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('8', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('9', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('×', () => _setOperation('×'), buttonHeight)),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   
                   // 第三行：4-5-6--
-                  Row(
-                    children: [
-                      Expanded(child: _buildNumberButton('4')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('5')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('6')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('-', () => _setOperation('-'))),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildNumberButton('4', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('5', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('6', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('-', () => _setOperation('-'), buttonHeight)),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   
                   // 第四行：1-2-3-+
-                  Row(
-                    children: [
-                      Expanded(child: _buildNumberButton('1')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('2')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildNumberButton('3')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('+', () => _setOperation('+'))),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildNumberButton('1', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('2', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildNumberButton('3', buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('+', () => _setOperation('+'), buttonHeight)),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   
                   // 第五行：0-.-=
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: _buildNumberButton('0'),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('.', _addDecimal)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildButton('=', _calculate)),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: _buildNumberButton('0', buttonHeight),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('.', _addDecimal, buttonHeight)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildButton('=', _calculate, buttonHeight)),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -137,9 +155,9 @@ class _CalculatorInputState extends State<CalculatorInput> {
     );
   }
 
-  Widget _buildButton(String text, VoidCallback onPressed) {
+  Widget _buildButton(String text, VoidCallback onPressed, double height) {
     return Container(
-      height: 60,
+      height: height,
       decoration: BoxDecoration(
         color: _isOperator(text) 
             ? Theme.of(context).colorScheme.primary
@@ -175,9 +193,9 @@ class _CalculatorInputState extends State<CalculatorInput> {
     );
   }
 
-  Widget _buildNumberButton(String number) {
+  Widget _buildNumberButton(String number, double height) {
     return Container(
-      height: 60,
+      height: height,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),

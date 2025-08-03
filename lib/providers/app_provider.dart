@@ -23,11 +23,133 @@ class AppProvider extends ChangeNotifier {
 
   // 初始化示例数据
   void initializeSampleData() {
-    _currentUser = SampleDataService.getSampleUser();
-    _familyMembers = SampleDataService.getSampleFamilyMembers();
-    _categories = SampleDataService.getSampleCategories();
-    _accounts = SampleDataService.getSampleAccounts();
-    _transactions = SampleDataService.getSampleTransactions();
+    // 移除假数据，让应用从空数据开始
+    _currentUser = null;
+    _familyMembers = [];
+    _transactions = [];
+    _accounts = [];
+    
+    // 只保留默认分类，这些是应用必需的基础分类
+    _categories = [
+      const Category(
+        id: 'expense_food',
+        name: '餐饮',
+        icon: '🍽️',
+        color: '#F59E0B',
+        type: 'expense',
+        sortOrder: 1,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_transport',
+        name: '交通',
+        icon: '🚗',
+        color: '#3B82F6',
+        type: 'expense',
+        sortOrder: 2,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_shopping',
+        name: '购物',
+        icon: '🛒',
+        color: '#10B981',
+        type: 'expense',
+        sortOrder: 3,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_entertainment',
+        name: '娱乐',
+        icon: '🎮',
+        color: '#8B5CF6',
+        type: 'expense',
+        sortOrder: 4,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_medical',
+        name: '医疗',
+        icon: '🏥',
+        color: '#EF4444',
+        type: 'expense',
+        sortOrder: 5,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_education',
+        name: '教育',
+        icon: '📚',
+        color: '#06B6D4',
+        type: 'expense',
+        sortOrder: 6,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_housing',
+        name: '住房',
+        icon: '🏠',
+        color: '#F97316',
+        type: 'expense',
+        sortOrder: 7,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'expense_other',
+        name: '其他',
+        icon: '📦',
+        color: '#6B7280',
+        type: 'expense',
+        sortOrder: 8,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'income_salary',
+        name: '工资',
+        icon: '💰',
+        color: '#10B981',
+        type: 'income',
+        sortOrder: 1,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'income_bonus',
+        name: '奖金',
+        icon: '🎁',
+        color: '#F59E0B',
+        type: 'income',
+        sortOrder: 2,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'income_investment',
+        name: '投资',
+        icon: '📈',
+        color: '#3B82F6',
+        type: 'income',
+        sortOrder: 3,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'income_part_time',
+        name: '兼职',
+        icon: '💼',
+        color: '#8B5CF6',
+        type: 'income',
+        sortOrder: 4,
+        isDefault: true,
+      ),
+      const Category(
+        id: 'income_other',
+        name: '其他',
+        icon: '📦',
+        color: '#6B7280',
+        type: 'income',
+        sortOrder: 5,
+        isDefault: true,
+      ),
+    ];
+    
     notifyListeners();
   }
 
