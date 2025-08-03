@@ -19,10 +19,6 @@ flutter --version
 echo "📦 获取项目依赖..."
 flutter pub get
 
-# 生成代码（如果需要）
-echo "🔧 生成代码..."
-flutter packages pub run build_runner build --delete-conflicting-outputs
-
 # 检查设备
 echo "📱 检查可用设备..."
 flutter devices
@@ -35,11 +31,17 @@ echo "   - 按 'R' 热重启"
 echo "   - 按 'q' 退出"
 echo ""
 
-# 尝试在iOS模拟器上运行
-if flutter devices | grep -q "iPhone"; then
+# 尝试在不同平台上运行
+if flutter devices | grep -q "macOS"; then
+    echo "🖥️ 在macOS上运行..."
+    flutter run -d macos
+elif flutter devices | grep -q "Chrome"; then
+    echo "🌐 在Chrome浏览器上运行..."
+    flutter run -d chrome
+elif flutter devices | grep -q "iPhone"; then
     echo "📱 在iOS模拟器上运行..."
     flutter run -d "iPhone"
-elif flutter devices | grep -q "Android"; then
+elif flutter devices | grep -q "android"; then
     echo "🤖 在Android模拟器上运行..."
     flutter run -d "android"
 else

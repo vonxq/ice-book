@@ -62,12 +62,48 @@ flutter pub get
 ```
 
 3. **运行应用**
+
+#### 方式一：平台选择启动器（推荐）
 ```bash
-# 使用运行脚本（推荐）
+./start.sh
+```
+然后选择运行平台：
+- macOS 桌面应用
+- Web 浏览器应用
+- iOS 模拟器
+- Android 模拟器
+- 自动选择最佳平台
+
+#### 方式二：直接运行
+```bash
+# macOS 桌面应用
+flutter run -d macos
+
+# Web 浏览器应用
+flutter run -d chrome
+
+# iOS 模拟器
+flutter run -d "iPhone 16 Pro"
+flutter run -d "iPhone 16"
+flutter run -d "iPhone"
+
+# Android 模拟器
+flutter run -d "android"
+```
+
+#### 方式三：iOS专用脚本
+```bash
+# iOS版本快速启动
+./run_ios.sh
+```
+
+#### 方式三：使用运行脚本
+```bash
+# 自动选择平台
 ./run.sh
 
-# 或手动运行
-flutter run
+# Web版本（需要Python）
+./run_web.sh
 ```
 
 ### 开发模式
