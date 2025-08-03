@@ -160,6 +160,36 @@ class DatabaseHelper {
       )
     ''');
 
+    // 年度活跃度表
+    await db.execute('''
+      CREATE TABLE annual_activities (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        year INTEGER NOT NULL,
+        dailyExpenses TEXT NOT NULL,
+        totalExpense REAL NOT NULL,
+        averageDailyExpense REAL NOT NULL,
+        maxDailyExpense REAL NOT NULL,
+        expenseDays INTEGER NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )
+    ''');
+
+    // 年度活跃度配置表
+    await db.execute('''
+      CREATE TABLE annual_activity_configs (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        expenseLevels TEXT NOT NULL,
+        levelColors TEXT NOT NULL,
+        showIncome INTEGER NOT NULL,
+        showMembers INTEGER NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )
+    ''');
+
     // 插入默认分类数据
     await _insertDefaultCategories(db);
   }

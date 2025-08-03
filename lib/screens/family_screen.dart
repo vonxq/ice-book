@@ -30,7 +30,7 @@ class FamilyScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 家庭概览卡片
+              // 零花钱概览卡片
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -47,13 +47,13 @@ class FamilyScreen extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.family_restroom,
+                              Icons.account_balance_wallet,
                               color: Colors.white,
                               size: 32,
                             ),
                             const SizedBox(width: 12),
                             const Text(
-                              '我的小家',
+                              '零花钱概览',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -63,19 +63,62 @@ class FamilyScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '生活费余额',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    '¥1,250.00',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '每天生活费收入',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    '¥80.00',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           '家庭成员：${familyMembers.length}人',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '本月家庭支出：¥0',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -204,12 +247,25 @@ class FamilyScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    _getRoleText(member.role),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        _getRoleText(member.role),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '零花钱: ¥150.00',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

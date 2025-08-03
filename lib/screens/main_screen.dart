@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ice_book/screens/home_screen.dart';
+import 'package:ice_book/screens/bills_screen.dart';
 import 'package:ice_book/screens/family_screen.dart';
 import 'package:ice_book/screens/charts_screen.dart';
 import 'package:ice_book/screens/profile_screen.dart';
@@ -17,6 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   
   final List<Widget> _screens = [
     const HomeScreen(),
+    const BillsScreen(),
     const FamilyScreen(),
     const ChartsScreen(),
     const ProfileScreen(),
@@ -55,19 +57,29 @@ class _MainScreenState extends State<MainScreen> {
                     onTap: () => _setCurrentIndex(0),
                   ),
                 ),
+                // 记账按钮（中间，更大）
+                Expanded(
+                  child: _buildAddButton(context),
+                ),
+                // 账单
+                Expanded(
+                  child: _buildNavItem(
+                    context,
+                    icon: Icons.receipt_long,
+                    label: '账单',
+                    isSelected: _currentIndex == 1,
+                    onTap: () => _setCurrentIndex(1),
+                  ),
+                ),
                 // 我的小家
                 Expanded(
                   child: _buildNavItem(
                     context,
                     icon: Icons.family_restroom,
                     label: '我的小家',
-                    isSelected: _currentIndex == 1,
-                    onTap: () => _setCurrentIndex(1),
+                    isSelected: _currentIndex == 2,
+                    onTap: () => _setCurrentIndex(2),
                   ),
-                ),
-                // 记账按钮（中间，更大）
-                Expanded(
-                  child: _buildAddButton(context),
                 ),
                 // 图表
                 Expanded(
@@ -75,8 +87,8 @@ class _MainScreenState extends State<MainScreen> {
                     context,
                     icon: Icons.bar_chart,
                     label: '图表',
-                    isSelected: _currentIndex == 2,
-                    onTap: () => _setCurrentIndex(2),
+                    isSelected: _currentIndex == 3,
+                    onTap: () => _setCurrentIndex(3),
                   ),
                 ),
                 // 我的
@@ -85,8 +97,8 @@ class _MainScreenState extends State<MainScreen> {
                     context,
                     icon: Icons.person,
                     label: '我的',
-                    isSelected: _currentIndex == 3,
-                    onTap: () => _setCurrentIndex(3),
+                    isSelected: _currentIndex == 4,
+                    onTap: () => _setCurrentIndex(4),
                   ),
                 ),
               ],
