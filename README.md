@@ -31,7 +31,10 @@ ice-book/
 │   ├── services/              # 服务层
 │   ├── utils/                 # 工具类
 │   └── main.dart              # 应用入口
-├── assets/                    # 资源文件
+├── prompt/                    # 设计参考文件夹
+│   ├── README.md              # 设计参考说明
+│   ├── Flutter记账应用设计文档.md  # 完整设计文档
+│   └── 记账/                  # 设计参考图片
 ├── pubspec.yaml               # 项目配置
 └── 系统使用文档.md            # 详细使用文档
 ```
