@@ -18,9 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 初始化默认分类数据
+    // 初始化应用数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AppProvider>().initializeSampleData();
+      context.read<AppProvider>().initializeApp();
     });
   }
 

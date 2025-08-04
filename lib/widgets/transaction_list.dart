@@ -168,11 +168,12 @@ class TransactionList extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // 交易信息
+          // 交易信息 - 两行布局
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 第一行：标题
                 Text(
                   transaction.note,
                   style: TextStyle(
@@ -182,16 +183,35 @@ class TransactionList extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
+                // 第二行：成员头像 + 时间
                 Row(
                   children: [
+                    // 成员头像
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '👨‍👩‍👧‍👦',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // 成员名称
                     Text(
-                      '👨‍👩‍👧‍👦 全家',
+                      '全家',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                     const Spacer(),
+                    // 时间
                     Text(
                       DateFormat('HH:mm').format(transaction.date),
                       style: TextStyle(

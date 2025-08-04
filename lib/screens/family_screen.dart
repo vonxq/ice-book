@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
 import 'package:ice_book/models/family_member.dart';
+import 'package:ice_book/models/pocket_money_config.dart';
 import 'package:ice_book/screens/family_member_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 class FamilyScreen extends StatelessWidget {
   const FamilyScreen({super.key});
@@ -41,6 +43,18 @@ class FamilyScreen extends StatelessWidget {
                 child: Consumer<AppProvider>(
                   builder: (context, appProvider, child) {
                     final familyMembers = appProvider.familyMembers;
+                    
+                    // 计算总零花钱余额和每日收入
+                    double totalBalance = 0;
+                    double totalDailyIncome = 0;
+                    
+                    for (final member in familyMembers) {
+                      // TODO: 从零花钱记录中计算余额
+                      // 这里暂时使用默认值
+                      totalBalance += 0; // 应该从零花钱记录计算
+                      totalDailyIncome += 0; // 应该从零花钱配置计算
+                    }
+                    
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -70,16 +84,16 @@ class FamilyScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    '生活费余额',
+                                    '零花钱余额',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
-                                    '¥1,250.00',
-                                    style: TextStyle(
+                                  Text(
+                                    '¥${NumberFormat('#,##0.00').format(totalBalance)}',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -93,16 +107,16 @@ class FamilyScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    '每天生活费收入',
+                                    '每天零花钱收入',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
-                                    '¥80.00',
-                                    style: TextStyle(
+                                  Text(
+                                    '¥${NumberFormat('#,##0.00').format(totalDailyIncome)}',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -258,7 +272,7 @@ class FamilyScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '零花钱: ¥150.00',
+                        '零花钱: ¥0.00', // TODO: 从零花钱记录计算
                         style: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).colorScheme.primary,

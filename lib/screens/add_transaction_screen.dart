@@ -47,80 +47,90 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 收入/支出切换
-            _buildTypeToggle(),
-            
-            // 分类选择
-            CategoryGrid(
-              type: _transactionType,
-              selectedCategoryId: _selectedCategoryId,
-              onCategorySelected: (categoryId) {
-                setState(() {
-                  _selectedCategoryId = categoryId;
-                  if (categoryId != null) {
-                    _showDetails = true;
-                  }
-                });
-              },
-            ),
-            
-            // 详细信息（只有在选择了分类后才显示）
-            if (_showDetails) ...[
-              // 家庭成员选择
-              _buildFamilyMemberSelection(),
-              
-              // 备注和日期时间
-              _buildNoteAndDateTime(),
-              
-              // 计算器输入
-              Expanded(
-                child: CalculatorInput(
-                  onAmountChanged: (amount) {
-                    setState(() {
-                      _amount = amount;
-                    });
-                  },
-                ),
-              ),
-            ] else ...[
-              // 提示信息
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.category,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '请先选择分类',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '选择分类后可以输入详细信息',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                        ),
-                      ),
-                    ],
+      body: Column(
+        children: [
+          // 上方可滚动区域
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // 收入/支出切换
+                  _buildTypeToggle(),
+                  
+                  // 分类选择
+                  CategoryGrid(
+                    type: _transactionType,
+                    selectedCategoryId: _selectedCategoryId,
+                    onCategorySelected: (categoryId) {
+                      setState(() {
+                        _selectedCategoryId = categoryId;
+                        if (categoryId != null) {
+                          _showDetails = true;
+                        }
+                      });
+                    },
                   ),
-                ),
+                  
+                  // 详细信息（只有在选择了分类后才显示）
+                  if (_showDetails) ...[
+                    // 家庭成员选择
+                    _buildFamilyMemberSelection(),
+                    
+                    // 备注和日期时间（放在计算器上方）
+                    _buildNoteAndDateTime(),
+                  ] else ...[
+                    // 提示信息
+                    Container(
+                      height: 200,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.category,
+                              size: 64,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '请先选择分类',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '选择分类后可以输入详细信息',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ],
-          ],
-        ),
+            ),
+          ),
+          
+          // 计算器固定在底部
+          if (_showDetails)
+            Container(
+              height: 300, // 固定计算器高度
+              child: CalculatorInput(
+                onAmountChanged: (amount) {
+                  setState(() {
+                    _amount = amount;
+                  });
+                },
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -136,7 +146,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '选择家庭成员',
+                '贡献人',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -189,10 +199,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // 改为4列，让按钮更小
-        crossAxisSpacing: 8, // 减小间距
+        crossAxisCount: 4,
+        crossAxisSpacing: 8,
         mainAxisSpacing: 8,
-        childAspectRatio: 1.0, // 调整宽高比
+        childAspectRatio: 1.0,
       ),
       itemCount: familyMembers.length,
       itemBuilder: (context, index) {
@@ -210,9 +220,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: isSelected 
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
                   : Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(8), // 减小圆角
+              borderRadius: BorderRadius.circular(8),
               border: isSelected 
-                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1) // 减小边框
+                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1)
                   : null,
             ),
             child: Column(
@@ -220,13 +230,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               children: [
                 Text(
                   member.avatar,
-                  style: const TextStyle(fontSize: 20), // 减小图标大小
+                  style: const TextStyle(fontSize: 20),
                 ),
-                const SizedBox(height: 2), // 减小间距
+                const SizedBox(height: 2),
                 Text(
                   member.name,
                   style: TextStyle(
-                    fontSize: 10, // 减小字体大小
+                    fontSize: 10,
                     fontWeight: FontWeight.w500,
                     color: isSelected 
                         ? Theme.of(context).colorScheme.primary
@@ -321,7 +331,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Widget _buildNoteAndDateTime() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
           // 备注输入
@@ -329,6 +339,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             decoration: const InputDecoration(
               labelText: '备注',
               hintText: '请输入备注信息',
+              border: OutlineInputBorder(),
             ),
             onChanged: (value) {
               setState(() {
@@ -340,7 +351,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           // 日期时间选择
           Row(
             children: [
-              const Text('日期时间: '),
+              const Text('日期: '),
               Expanded(
                 child: GestureDetector(
                   onTap: () async {
@@ -390,16 +401,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   bool _canSave() {
-    final canSave = _selectedCategoryId != null && _amount > 0;
-    print('保存按钮状态: 分类ID=$_selectedCategoryId, 金额=$_amount, 可保存=$canSave');
-    return canSave;
+    return _selectedCategoryId != null && _amount > 0;
   }
 
   void _saveTransaction() {
-    print('尝试保存交易: 分类ID=$_selectedCategoryId, 金额=$_amount, 备注=$_note, 时间=$_selectedDateTime');
-    
     if (!_canSave()) {
-      print('保存失败: 条件不满足');
       return;
     }
 
@@ -420,7 +426,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     // 保存到Provider
     context.read<AppProvider>().addTransaction(transaction);
     
-    print('保存成功，返回上一页');
     Navigator.of(context).pop();
   }
 } 

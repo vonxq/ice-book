@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
+import 'package:intl/intl.dart';
 
 class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
@@ -51,200 +52,284 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
   }
 
   Widget _buildMonthlyBills() {
-    return Column(
-      children: [
-        // 年份选择器
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedYear--;
-                  });
-                },
-                icon: const Icon(Icons.chevron_left),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _showYearPicker(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).colorScheme.outline),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$_selectedYear年',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, child) {
+        final transactions = appProvider.transactions;
+        final yearTransactions = transactions.where((t) => t.date.year == _selectedYear).toList();
+        
+        // 计算年度统计数据
+        double yearIncome = 0;
+        double yearExpense = 0;
+        for (final transaction in yearTransactions) {
+          if (transaction.type == 'income') {
+            yearIncome += transaction.amount;
+          } else {
+            yearExpense += transaction.amount;
+          }
+        }
+        final yearBalance = yearIncome - yearExpense;
+
+        return Column(
+          children: [
+            // 年份选择器
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedYear--;
+                      });
+                    },
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _showYearPicker(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Theme.of(context).colorScheme.outline),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$_selectedYear年',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedYear++;
-                  });
-                },
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-        ),
-        
-        // 年度概览卡片
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Text(
-                '$_selectedYear年概览',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '年收入',
-                      '¥85,000',
-                      Colors.green,
-                      Icons.trending_up,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '年支出',
-                      '¥32,000',
-                      Colors.red,
-                      Icons.trending_down,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '年结余',
-                      '¥53,000',
-                      Theme.of(context).colorScheme.primary,
-                      Icons.account_balance_wallet,
-                    ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedYear++;
+                      });
+                    },
+                    icon: const Icon(Icons.chevron_right),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // 月份列表
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 12,
-            itemBuilder: (context, index) {
-              final month = index + 1;
-              return _buildMonthItem(month);
-            },
-          ),
-        ),
-      ],
+            ),
+            
+            // 年度概览卡片
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '$_selectedYear年概览',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '年收入',
+                          '¥${NumberFormat('#,##0').format(yearIncome)}',
+                          Colors.green,
+                          Icons.trending_up,
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '年支出',
+                          '¥${NumberFormat('#,##0').format(yearExpense)}',
+                          Colors.red,
+                          Icons.trending_down,
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '年结余',
+                          '¥${NumberFormat('#,##0').format(yearBalance)}',
+                          Theme.of(context).colorScheme.primary,
+                          Icons.account_balance_wallet,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 月份列表
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: 12,
+                itemBuilder: (context, index) {
+                  final month = index + 1;
+                  return _buildMonthItem(month, yearTransactions);
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildYearlyBills() {
-    return Column(
-      children: [
-        // 概览卡片
-        Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              const Text(
-                '总览',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '总支出',
-                      '¥156,000',
-                      Colors.red,
-                      Icons.trending_down,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '总收入',
-                      '¥245,000',
-                      Colors.green,
-                      Icons.trending_up,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildOverviewItem(
-                      '总结余',
-                      '¥89,000',
-                      Theme.of(context).colorScheme.primary,
-                      Icons.account_balance_wallet,
-                    ),
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, child) {
+        final transactions = appProvider.transactions;
+        
+        // 按年份分组统计
+        final yearStats = <int, Map<String, double>>{};
+        for (final transaction in transactions) {
+          final year = transaction.date.year;
+          yearStats.putIfAbsent(year, () => {'income': 0, 'expense': 0});
+          
+          if (transaction.type == 'income') {
+            yearStats[year]!['income'] = yearStats[year]!['income']! + transaction.amount;
+          } else {
+            yearStats[year]!['expense'] = yearStats[year]!['expense']! + transaction.amount;
+          }
+        }
+        
+        // 计算总统计数据
+        double totalIncome = 0;
+        double totalExpense = 0;
+        for (final stats in yearStats.values) {
+          totalIncome += stats['income']!;
+          totalExpense += stats['expense']!;
+        }
+        final totalBalance = totalIncome - totalExpense;
+        
+        final sortedYears = yearStats.keys.toList()..sort((a, b) => b.compareTo(a));
+
+        return Column(
+          children: [
+            // 概览卡片
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
-            ],
+              child: Column(
+                children: [
+                  const Text(
+                    '总览',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '总支出',
+                          '¥${NumberFormat('#,##0').format(totalExpense)}',
+                          Colors.red,
+                          Icons.trending_down,
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '总收入',
+                          '¥${NumberFormat('#,##0').format(totalIncome)}',
+                          Colors.green,
+                          Icons.trending_up,
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildOverviewItem(
+                          '总结余',
+                          '¥${NumberFormat('#,##0').format(totalBalance)}',
+                          Theme.of(context).colorScheme.primary,
+                          Icons.account_balance_wallet,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            // 年份列表
+            Expanded(
+              child: sortedYears.isEmpty 
+                  ? _buildEmptyState(context)
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: sortedYears.length,
+                      itemBuilder: (context, index) {
+                        final year = sortedYears[index];
+                        final stats = yearStats[year]!;
+                        return _buildYearItem(year, stats['income']!, stats['expense']!);
+                      },
+                    ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
           ),
-        ),
-        
-        // 年份列表
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5, // 显示最近5年
-            itemBuilder: (context, index) {
-              final year = DateTime.now().year - index;
-              return _buildYearItem(year);
-            },
+          const SizedBox(height: 16),
+          Text(
+            '暂无账单数据',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            '开始记账后可以查看账单统计',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -277,15 +362,23 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildMonthItem(int month) {
-    // 示例数据
+  Widget _buildMonthItem(int month, List<dynamic> yearTransactions) {
     final monthNames = [
       '一月', '二月', '三月', '四月', '五月', '六月',
       '七月', '八月', '九月', '十月', '十一月', '十二月'
     ];
     
-    final income = 7000.0 + (month * 100); // 示例收入
-    final expense = 2500.0 + (month * 50); // 示例支出
+    // 计算该月的收支
+    final monthTransactions = yearTransactions.where((t) => t.date.month == month).toList();
+    double income = 0;
+    double expense = 0;
+    for (final transaction in monthTransactions) {
+      if (transaction.type == 'income') {
+        income += transaction.amount;
+      } else {
+        expense += transaction.amount;
+      }
+    }
     final balance = income - expense;
 
     return Container(
@@ -337,7 +430,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
                 Row(
                   children: [
                     Text(
-                      '收入: ¥${income.toStringAsFixed(0)}',
+                      '收入: ¥${NumberFormat('#,##0').format(income)}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.green,
@@ -345,7 +438,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '支出: ¥${expense.toStringAsFixed(0)}',
+                      '支出: ¥${NumberFormat('#,##0').format(expense)}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.red,
@@ -362,7 +455,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '¥${balance.toStringAsFixed(0)}',
+                '¥${NumberFormat('#,##0').format(balance)}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -385,10 +478,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildYearItem(int year) {
-    // 示例数据
-    final income = 85000.0 + (year % 10 * 1000); // 示例收入
-    final expense = 32000.0 + (year % 10 * 500); // 示例支出
+  Widget _buildYearItem(int year, double income, double expense) {
     final balance = income - expense;
 
     return Container(
@@ -440,7 +530,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
                 Row(
                   children: [
                     Text(
-                      '收入: ¥${income.toStringAsFixed(0)}',
+                      '收入: ¥${NumberFormat('#,##0').format(income)}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.green,
@@ -448,7 +538,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '支出: ¥${expense.toStringAsFixed(0)}',
+                      '支出: ¥${NumberFormat('#,##0').format(expense)}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.red,
@@ -465,7 +555,7 @@ class _BillsScreenState extends State<BillsScreen> with SingleTickerProviderStat
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '¥${balance.toStringAsFixed(0)}',
+                '¥${NumberFormat('#,##0').format(balance)}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

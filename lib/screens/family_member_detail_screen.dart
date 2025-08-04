@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ice_book/providers/app_provider.dart';
 import 'package:ice_book/models/family_member.dart';
-import 'package:ice_book/models/pocket_money_record.dart';
+import 'package:ice_book/models/pocket_money_config.dart';
+import 'package:intl/intl.dart';
 
 class FamilyMemberDetailScreen extends StatefulWidget {
   final FamilyMember member;
@@ -17,503 +18,587 @@ class FamilyMemberDetailScreen extends StatefulWidget {
 }
 
 class _FamilyMemberDetailScreenState extends State<FamilyMemberDetailScreen> {
-  double _pocketMoneyBalance = 0.0;
-  List<PocketMoneyRecord> _records = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPocketMoneyData();
-  }
-
-  void _loadPocketMoneyData() {
-    // TODO: 从数据库加载零花钱余额和记录
-    setState(() {
-      _pocketMoneyBalance = 150.0; // 示例数据
-      _records = [
-        PocketMoneyRecord(
-          id: '1',
-          memberId: widget.member.id,
-          amount: 30.0,
-          type: 'daily',
-          note: '日常零花钱',
-          date: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        PocketMoneyRecord(
-          id: '2',
-          memberId: widget.member.id,
-          amount: -15.0,
-          type: 'expense',
-          note: '午餐',
-          date: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      ];
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('${widget.member.name}的零花钱'),
+        title: Text(widget.member.name),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              _showEditMemberDialog(context);
+            },
+          ),
+        ],
       ),
-      body: Column(
-        children: [
-          // 成员信息和零花钱概览卡片
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 成员信息卡片
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // 成员头像
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: Text(
-                    widget.member.name[0],
-                    style: const TextStyle(
-                      fontSize: 24,
+                child: Column(
+                  children: [
+                    // 头像和姓名
+                    Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.member.avatar,
+                              style: const TextStyle(fontSize: 32),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.member.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _getRoleText(widget.member.role),
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // 零花钱概览
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              const Text(
+                                '零花钱余额',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '¥0.00', // TODO: 从零花钱记录计算
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              const Text(
+                                '今日收入',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '¥0.00', // TODO: 从零花钱配置计算
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // 零花钱配置
+              Row(
+                children: [
+                  const Text(
+                    '零花钱配置',
+                    style: TextStyle(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: () {
+                      _showAddConfigDialog(context);
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('添加配置'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // 配置列表
+              Expanded(
+                child: Consumer<AppProvider>(
+                  builder: (context, appProvider, child) {
+                    // TODO: 从Provider获取零花钱配置列表
+                    final configs = <PocketMoneyConfig>[];
+                    
+                    if (configs.isEmpty) {
+                      return _buildEmptyConfigState(context);
+                    }
+                    
+                    return ListView.builder(
+                      itemCount: configs.length,
+                      itemBuilder: (context, index) {
+                        final config = configs[index];
+                        return _buildConfigCard(context, config);
+                      },
+                    );
+                  },
                 ),
-                const SizedBox(width: 16),
-                // 成员信息和零花钱余额
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.member.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyConfigState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.account_balance_wallet,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '暂无零花钱配置',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '点击"添加配置"设置零花钱',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfigCard(BuildContext context, PocketMoneyConfig config) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '日零花钱: ¥${NumberFormat('#,##0.00').format(config.dailyAmount)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 8),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '开始时间: ${DateFormat('yyyy-MM-dd').format(config.startDate)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                    if (config.endDate != null) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        '零花钱余额',
+                        '结束时间: ${DateFormat('yyyy-MM-dd').format(config.endDate!)}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
+                    ] else ...[
                       const SizedBox(height: 4),
                       Text(
-                        '¥${_pocketMoneyBalance.toStringAsFixed(2)}',
+                        '结束时间: 永久有效',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  Switch(
+                    value: config.isEnabled,
+                    onChanged: (value) {
+                      // TODO: 更新配置状态
+                    },
                   ),
-                ),
-                // 编辑按钮
-                IconButton(
-                  onPressed: () {
-                    // TODO: 编辑成员信息
-                  },
-                  icon: const Icon(Icons.edit),
-                ),
-              ],
-            ),
+                  const SizedBox(height: 8),
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      _showEditConfigDialog(context, config);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-          
-          // 快速操作按钮
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _showAddExpenseDialog(),
-                    icon: const Icon(Icons.remove),
-                    label: const Text('新增支出'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                config.accumulateToNext ? Icons.check_circle : Icons.cancel,
+                size: 16,
+                color: config.accumulateToNext ? Colors.green : Colors.red,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                config.accumulateToNext ? '累计到下期' : '不累计',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: config.accumulateToNext ? Colors.green : Colors.red,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _showAddRewardDialog(),
-                    icon: const Icon(Icons.add),
-                    label: const Text('发放奖励'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _showAddPenaltyDialog(),
-                    icon: const Icon(Icons.gavel),
-                    label: const Text('扣除罚款'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // 记录列表标题
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Text(
-                  '记录列表',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    // TODO: 查看所有记录
-                  },
-                  child: const Text('查看全部'),
-                ),
-              ],
-            ),
-          ),
-          
-          // 记录列表
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _records.length,
-              itemBuilder: (context, index) {
-                final record = _records[index];
-                return _buildRecordItem(record);
-              },
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRecordItem(PocketMoneyRecord record) {
-    Color amountColor;
-    IconData icon;
-    String typeText;
-    
-    switch (record.type) {
-      case 'daily':
-        amountColor = Colors.green;
-        icon = Icons.add_circle;
-        typeText = '日常发放';
-        break;
-      case 'reward':
-        amountColor = Colors.blue;
-        icon = Icons.card_giftcard;
-        typeText = '奖励';
-        break;
-      case 'expense':
-        amountColor = Colors.red;
-        icon = Icons.remove_circle;
-        typeText = '支出';
-        break;
-      case 'penalty':
-        amountColor = Colors.orange;
-        icon = Icons.gavel;
-        typeText = '罚款';
-        break;
+  String _getRoleText(String role) {
+    switch (role) {
+      case 'parent':
+        return '家长';
+      case 'child':
+        return '孩子';
       default:
-        amountColor = Colors.grey;
-        icon = Icons.circle;
-        typeText = '其他';
+        return '成员';
     }
+  }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: amountColor,
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  void _showEditMemberDialog(BuildContext context) {
+    final nameController = TextEditingController(text: widget.member.name);
+    String selectedRole = widget.member.role;
+    String selectedAvatar = widget.member.avatar;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑家庭成员'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  record.note,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: '姓名',
+                    hintText: '请输入家庭成员姓名',
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    Text(
-                      typeText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    const Text('角色: '),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: selectedRole,
+                        isExpanded: true,
+                        items: const [
+                          DropdownMenuItem(value: 'parent', child: Text('家长')),
+                          DropdownMenuItem(value: 'child', child: Text('孩子')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedRole = value!;
+                          });
+                        },
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatDate(record.date),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('头像: '),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: selectedAvatar,
+                        isExpanded: true,
+                        items: const [
+                          DropdownMenuItem(value: '👨', child: Text('👨')),
+                          DropdownMenuItem(value: '👩', child: Text('👩')),
+                          DropdownMenuItem(value: '👧', child: Text('👧')),
+                          DropdownMenuItem(value: '👦', child: Text('👦')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedAvatar = value!;
+                          });
+                        },
                       ),
                     ),
                   ],
                 ),
               ],
-            ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
           ),
-          Text(
-            '${record.amount >= 0 ? '+' : ''}¥${record.amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: amountColor,
-            ),
+          TextButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty) {
+                final updatedMember = widget.member.copyWith(
+                  name: nameController.text,
+                  role: selectedRole,
+                  avatar: selectedAvatar,
+                  updatedAt: DateTime.now(),
+                );
+                
+                context.read<AppProvider>().updateFamilyMember(updatedMember);
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('保存'),
           ),
         ],
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final recordDate = DateTime(date.year, date.month, date.day);
-    
-    if (recordDate == today) {
-      return '今天';
-    } else if (recordDate == today.subtract(const Duration(days: 1))) {
-      return '昨天';
-    } else {
-      return '${date.month}月${date.day}日';
-    }
-  }
+  void _showAddConfigDialog(BuildContext context) {
+    final dailyAmountController = TextEditingController();
+    DateTime startDate = DateTime.now();
+    DateTime? endDate;
+    bool accumulateToNext = true;
 
-  void _showAddExpenseDialog() {
     showDialog(
       context: context,
-      builder: (context) => _AddExpenseDialog(member: widget.member),
-    ).then((_) => _loadPocketMoneyData());
-  }
-
-  void _showAddRewardDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _AddRewardDialog(member: widget.member),
-    ).then((_) => _loadPocketMoneyData());
-  }
-
-  void _showAddPenaltyDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _AddPenaltyDialog(member: widget.member),
-    ).then((_) => _loadPocketMoneyData());
-  }
-}
-
-// 新增支出对话框
-class _AddExpenseDialog extends StatefulWidget {
-  final FamilyMember member;
-
-  const _AddExpenseDialog({required this.member});
-
-  @override
-  State<_AddExpenseDialog> createState() => _AddExpenseDialogState();
-}
-
-class _AddExpenseDialogState extends State<_AddExpenseDialog> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('为${widget.member.name}新增支出'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '支出金额',
-              prefixText: '¥',
-            ),
+      builder: (context) => AlertDialog(
+        title: const Text('添加零花钱配置'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: dailyAmountController,
+                  decoration: const InputDecoration(
+                    labelText: '日零花钱金额',
+                    hintText: '请输入每日零花钱金额',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('开始时间: '),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: startDate,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              startDate = date;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).colorScheme.outline),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            DateFormat('yyyy-MM-dd').format(startDate),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('结束时间: '),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: endDate ?? DateTime.now(),
+                            firstDate: startDate,
+                            lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              endDate = date;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).colorScheme.outline),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            endDate != null 
+                                ? DateFormat('yyyy-MM-dd').format(endDate!)
+                                : '永久有效',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: accumulateToNext,
+                      onChanged: (value) {
+                        setState(() {
+                          accumulateToNext = value ?? true;
+                        });
+                      },
+                    ),
+                    const Text('累计到下期'),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _noteController,
-            decoration: const InputDecoration(
-              labelText: '支出备注',
-            ),
+          TextButton(
+            onPressed: () {
+              if (dailyAmountController.text.isNotEmpty) {
+                final dailyAmount = double.tryParse(dailyAmountController.text);
+                if (dailyAmount != null && dailyAmount > 0) {
+                  final newConfig = PocketMoneyConfig(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    memberId: widget.member.id,
+                    dailyAmount: dailyAmount,
+                    accumulateToNext: accumulateToNext,
+                    startDate: startDate,
+                    endDate: endDate,
+                    isEnabled: true,
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                  );
+                  
+                  // TODO: 保存零花钱配置
+                  // context.read<AppProvider>().addPocketMoneyConfig(newConfig);
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: const Text('添加'),
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // TODO: 保存支出记录
-            Navigator.of(context).pop();
-          },
-          child: const Text('确认'),
-        ),
-      ],
     );
   }
-}
 
-// 发放奖励对话框
-class _AddRewardDialog extends StatefulWidget {
-  final FamilyMember member;
-
-  const _AddRewardDialog({required this.member});
-
-  @override
-  State<_AddRewardDialog> createState() => _AddRewardDialogState();
-}
-
-class _AddRewardDialogState extends State<_AddRewardDialog> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('为${widget.member.name}发放奖励'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '奖励金额',
-              prefixText: '¥',
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _noteController,
-            decoration: const InputDecoration(
-              labelText: '奖励原因',
-            ),
+  void _showEditConfigDialog(BuildContext context, PocketMoneyConfig config) {
+    // TODO: 实现编辑配置对话框
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑零花钱配置'),
+        content: const Text('编辑功能待实现'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('确定'),
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // TODO: 保存奖励记录
-            Navigator.of(context).pop();
-          },
-          child: const Text('确认'),
-        ),
-      ],
-    );
-  }
-}
-
-// 扣除罚款对话框
-class _AddPenaltyDialog extends StatefulWidget {
-  final FamilyMember member;
-
-  const _AddPenaltyDialog({required this.member});
-
-  @override
-  State<_AddPenaltyDialog> createState() => _AddPenaltyDialogState();
-}
-
-class _AddPenaltyDialogState extends State<_AddPenaltyDialog> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('为${widget.member.name}扣除罚款'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '罚款金额',
-              prefixText: '¥',
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _noteController,
-            decoration: const InputDecoration(
-              labelText: '罚款原因',
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // TODO: 保存罚款记录
-            Navigator.of(context).pop();
-          },
-          child: const Text('确认'),
-        ),
-      ],
     );
   }
 } 

@@ -5,7 +5,6 @@ import 'package:ice_book/screens/budget_screen.dart';
 import 'package:ice_book/screens/assets_screen.dart';
 import 'package:ice_book/screens/family_screen.dart';
 import 'package:ice_book/screens/charts_screen.dart';
-import 'package:ice_book/screens/annual_activity_screen.dart';
 
 class Toolbar extends StatelessWidget {
   const Toolbar({super.key});
@@ -54,11 +53,8 @@ class Toolbar extends StatelessWidget {
                 );
               })),
               const SizedBox(width: 12),
-              Expanded(child: _buildToolItem(context, '年度活跃度', FontAwesomeIcons.calendar, () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const AnnualActivityScreen()),
-                );
-              })),
+              // 占位，保持布局平衡
+              Expanded(child: Container()),
             ],
           ),
         ],
